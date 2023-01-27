@@ -4,19 +4,27 @@ specifiers:
   '@astrojs/node': ^5.0.1
   '@astrojs/solid-js': ^2.0.0
   '@solidjs/router': ^0.7.0
+  '@tanstack/solid-query': ^4.22.4
+  '@trpc/client': ^10.9.0
+  '@trpc/server': ^10.9.0
   astro: ^2.0.2
   autoprefixer: ^10.4.13
   open-props: ^1.5.5
   postcss-jit-props: ^1.0.9
   postcss-nesting: ^11.0.0
   solid-js: ^1.4.3
+  zod: ^3.20.2
 
 dependencies:
   '@astrojs/node': 5.0.1_astro@2.0.2
   '@astrojs/solid-js': 2.0.0_solid-js@1.6.9
   '@solidjs/router': 0.7.0_solid-js@1.6.9
+  '@tanstack/solid-query': 4.22.4_solid-js@1.6.9
+  '@trpc/client': 10.9.0_@trpc+server@10.9.0
+  '@trpc/server': 10.9.0
   astro: 2.0.2
   solid-js: 1.6.9
+  zod: 3.20.2
 
 devDependencies:
   autoprefixer: 10.4.13
@@ -682,6 +690,31 @@ packages:
       solid-js: ^1.5.3
     dependencies:
       solid-js: 1.6.9
+    dev: false
+
+  /@tanstack/query-core/4.22.4:
+    resolution: {integrity: sha512-t79CMwlbBnj+yL82tEcmRN93bL4U3pae2ota4t5NN2z3cIeWw74pzdWrKRwOfTvLcd+b30tC+ciDlfYOKFPGUw==}
+    dev: false
+
+  /@tanstack/solid-query/4.22.4_solid-js@1.6.9:
+    resolution: {integrity: sha512-QMumuG4xO3HJgLNXeh9bthjdBd+k54osJ6fma3vxCJD0jpYEaL6f74S/hJzgVb/pS0cjoI3X0SLapHKefSYgcQ==}
+    peerDependencies:
+      solid-js: ^1.5.7
+    dependencies:
+      '@tanstack/query-core': 4.22.4
+      solid-js: 1.6.9
+    dev: false
+
+  /@trpc/client/10.9.0_@trpc+server@10.9.0:
+    resolution: {integrity: sha512-id6318qpgqllNOuBp7nuciXFPXCe+zae5d4r1hze6Eyp5fFFNO58TqA+4Q44KIcHgpfWyW2egs6iPeql3PrdKA==}
+    peerDependencies:
+      '@trpc/server': 10.9.0
+    dependencies:
+      '@trpc/server': 10.9.0
+    dev: false
+
+  /@trpc/server/10.9.0:
+    resolution: {integrity: sha512-5psyZgbvy29pJND32hwkWTMbv6s86IbsPOeDopsgNF0VegZT6Dsijmb7Ub/TDhuJVQVq5u4u5briMXi3SxmBkw==}
     dev: false
 
   /@types/babel__core/7.20.0:

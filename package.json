@@ -14,8 +14,12 @@
     "@astrojs/node": "^5.0.1",
     "@astrojs/solid-js": "^2.0.0",
     "@solidjs/router": "^0.7.0",
+    "@tanstack/solid-query": "^4.22.4",
+    "@trpc/client": "^10.9.0",
+    "@trpc/server": "^10.9.0",
     "astro": "^2.0.2",
-    "solid-js": "^1.4.3"
+    "solid-js": "^1.4.3",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",

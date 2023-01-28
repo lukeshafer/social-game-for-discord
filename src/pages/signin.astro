@@ -1,0 +1,11 @@
+---
+import Page from "@/components/layout/Page.astro";
+import { Signin, Signout, Auth } from "auth-astro/components";
+import { authOpts } from "./api/auth/[...astroAuth]";
+---
+
+<Page title="Sign In">
+	<Auth authOpts={authOpts}>
+		<Signin provider="discord" />
+	</Auth>
+</Page>

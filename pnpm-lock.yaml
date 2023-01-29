@@ -16,6 +16,7 @@ specifiers:
   astro: ^2.0.2
   auth-astro: ^1.0.4
   autoprefixer: ^10.4.13
+  cookie: ^0.5.0
   discord.js: ^14.7.1
   eslint: ^8.33.0
   eslint-plugin-astro: ^0.23.0
@@ -42,6 +43,7 @@ dependencies:
   '@trpc/server': 10.9.0
   astro: 2.0.2
   auth-astro: 1.0.4_vrfpqbafqeesdon2dzdo7ikmc4
+  cookie: 0.5.0
   discord.js: 14.7.1
   postcss: 8.4.21
   solid-js: 1.6.9

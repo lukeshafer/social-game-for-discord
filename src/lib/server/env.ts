@@ -8,4 +8,11 @@ const envSchema = z.object({
 });
 
 export type Env = z.infer<typeof envSchema>;
-export const env = envSchema.parse(import.meta.env);
+export const env = (() => {
+	try {
+		envSchema.parse(import.meta.env);
+	} catch (error) {
+		console.error("Error parsing environment variables", error);
+		throw error;
+	}
+})();

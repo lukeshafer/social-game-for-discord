@@ -11,6 +11,7 @@
 		"check-node-version": "node -v"
 	},
 	"dependencies": {
+		"@acab/ecsstatic": "^0.3.0",
 		"@astrojs/node": "^5.0.1",
 		"@astrojs/solid-js": "^2.0.0",
 		"@auth/core": "^0.3.0",

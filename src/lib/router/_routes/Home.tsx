@@ -1,11 +1,16 @@
-import { trpc } from "@/trpc-client";
-import { onMount } from "solid-js";
+import LukeSprite from "@/assets/sprites/LukeSprite.svg";
+import { GameWindow } from "@/components/GameObjects";
 
 export default function Home() {
-    onMount(async () => {
-        console.log("Testing trpc");
-        const r = await trpc.user.getAll.query({ name: "Luke" });
-        console.log(r);
-    });
-    return <div>Home</div>;
+	return (
+		<GameWindow
+			controls={{
+				up: "e",
+				down: "d",
+				left: "s",
+				right: "f",
+			}}
+			spritePath={LukeSprite}
+		/>
+	);
 }

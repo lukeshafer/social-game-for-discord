@@ -21,11 +21,6 @@ export default function AppRouter(props: Props) {
 	return (
 		<Router base={props.base} url={props.ssrRoute}>
 			<main>
-				<nav>
-					<For each={routeArray}>
-						{(route) => <A href={`/${route.name}`}>{route.name}</A>}
-					</For>
-				</nav>
 				<Routes>
 					<For each={routeArray}>
 						{(route) => <Route path={route.name} component={route.component} />}

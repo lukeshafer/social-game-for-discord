@@ -6,8 +6,5 @@ import Page from "../../lib/components/layout/Page.astro";
 ---
 
 <Page title="Astro">
-	<main>
-		<h1>My App</h1>
-		<Router client:load base="/app" ssrRoute={Astro.url.pathname} />
-	</main>
+	<Router client:load base="/app" ssrRoute={Astro.url.pathname} />
 </Page>

@@ -1,4 +1,5 @@
 import { defineConfig } from "astro/config";
+import { ecsstatic } from "@acab/ecsstatic/vite";
 
 // https://astro.build/config
 import solidJs from "@astrojs/solid-js";
@@ -11,4 +12,7 @@ export default defineConfig({
 	adapter: node({
 		mode: "standalone",
 	}),
+	vite: {
+		plugins: [ecsstatic()],
+	},
 });

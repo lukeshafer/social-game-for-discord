@@ -1,16 +1,8 @@
-import { Route, Router, Routes, A } from "@solidjs/router";
-import { For, type JSX } from "solid-js";
-
-// eslint-disable-next-line
-const routes = import.meta.glob("./_routes/*.tsx", { eager: true }) as Record<
-	string,
-	{ default: () => JSX.Element }
->;
-const routeArray = Object.entries(routes).map(([path, file]) => {
-	const name = path.replace("./_routes/", "").replace(".tsx", "");
-	const component = file?.default as () => JSX.Element;
-	return { name, component };
-});
+import LukeSprite from "@/assets/sprites/LukeSprite.svg";
+import { A, Route, Router, Routes } from "@solidjs/router";
+import { For } from "solid-js";
+import { GameWindow } from "@/components/GameObjects";
+import maps, { type MapName } from "@/maps";
 
 interface Props {
 	ssrRoute: string;
@@ -22,10 +14,39 @@ export default function AppRouter(props: Props) {
 		<Router base={props.base} url={props.ssrRoute}>
 			<main>
 				<Routes>
-					<For each={routeArray}>
-						{(route) => <Route path={route.name} component={route.component} />}
+					<For each={Object.entries(maps)}>
+						{([mapName, { id: mapId }]) => (
+							<Route
+								path={mapId}
+								element={
+									<GameWindow
+										controls={{
+											up: "e",
+											down: "d",
+											left: "s",
+											right: "f",
+										}}
+										spritePath={LukeSprite}
+										mapName={mapName as MapName}
+									/>
+								}
+							/>
+						)}
 					</For>
 				</Routes>
+				<nav
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+					}}
+				>
+					<For each={Object.entries(maps)}>
+						{([, { displayName, id: mapId }]) => (
+							<A href={`/${mapId}`}>{displayName}</A>
+						)}
+					</For>
+				</nav>
 			</main>
 		</Router>
 	);

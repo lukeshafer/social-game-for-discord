@@ -11,6 +11,7 @@ export default function Home() {
 				right: "f",
 			}}
 			spritePath={LukeSprite}
+			mapName="testMap"
 		/>
 	);
 }

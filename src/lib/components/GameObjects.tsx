@@ -1,13 +1,29 @@
 import { createStore } from "solid-js/store";
 import { css } from "@acab/ecsstatic";
-import { onMount, ParentProps } from "solid-js";
+import { createEffect, onCleanup, onMount, ParentProps } from "solid-js";
 import { clamp } from "@/utils";
+import maps, { type MapName } from "@/maps";
 
-const PLAYER_WIDTH = 64;
-const PLAYER_HEIGHT = 128;
+const TILE_SIZE = 64;
+const PLAYER_WIDTH = TILE_SIZE;
+const PLAYER_HEIGHT = TILE_SIZE * 2;
 
-const MAP_WIDTH = 1555;
-const MAP_HEIGHT = 1000;
+// TODO: fix how state resets in new room, can wait until proper rooms exist
+
+/** Reactive player state */
+const [playerPosition, setPlayerState] = createStore({
+	x: 0,
+	y: 0,
+});
+
+/** The current player movement state.
+ * @remarks Not a store because it doesn't need to be reactive */
+const playerMovementState = {
+	dx: 0,
+	dy: 0,
+	xMax: 0,
+	yMax: 0,
+};
 
 function PlayerCharacter(props: { spritePath: string; x: number; y: number }) {
 	return <Character spritePath={props.spritePath} x={props.x} y={props.y} />;
@@ -28,143 +44,97 @@ function Character(props: { spritePath: string; x: number; y: number }) {
 	);
 }
 
-function Map(
-	props: ParentProps<{
-		width: number;
-		height: number;
-		playerState: PlayerPosition;
-		window: HTMLDivElement;
-	}>
-) {
-	const xOffset = () =>
-		props.width > props.window?.offsetWidth
-			? -clamp(
-				props.playerState.x + PLAYER_WIDTH / 2, // Center the player
-				props.window?.offsetWidth / 2 ?? 0,
-				props.width - props.window?.offsetWidth / 2 ?? 0
-			)
-			: -props.width / 2;
-	const yOffset = () =>
-		props.height > props.window?.offsetHeight
-			? -clamp(
-				props.playerState.y + PLAYER_HEIGHT / 2, // Center the player
-				props.window?.offsetHeight / 2 ?? 0,
-				props.height - props.window?.offsetHeight / 2 ?? 0
-			)
-			: -props.height / 2;
-
-	return (
-		<div
-			id="game-map"
-			class={css`
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                background-image: url("https://picsum.photos/2000/2000");
-                background-size: cover;
-            `}
-			style={{
-				width: `${props.width}px`,
-				height: `${props.height}px`,
-				transform: `translate(${xOffset()}px, ${yOffset()}px)`,
-			}}
-		>
-			{props.children}
-		</div>
-	);
-}
-
-interface PlayerPosition {
-	x: number;
-	y: number;
-}
-
-interface PlayerMovementState {
-	dx: -1 | 0 | 1;
-	dy: -1 | 0 | 1;
-}
-
 export function GameWindow(
 	props: ParentProps<{
 		spritePath: string;
 		controls: PlayerControls;
+		mapName: MapName;
 	}>
 ) {
-	const [playerState, setPlayerState] = createStore<PlayerPosition>({
-		x: 0,
-		y: 0,
-	});
+	const frameHandler = new FrameHandler(i);
+	i = i + 1;
+	frameHandler.onFrame(movePlayer);
 
-	const movementState: PlayerMovementState = {
-		dx: 0,
-		dy: 0,
-	};
-
-	const gameState = new GameState();
-	gameState.register((elapsed) => {
-		const SPEED = 200; // px per second
-		elapsed = elapsed / 1000; // convert to seconds from milliseconds
-		const distance = SPEED * elapsed;
-		if (movementState.dx !== 0) {
-			setPlayerState("x", (x) =>
-				clamp(x + distance * movementState.dx, 0, MAP_WIDTH - PLAYER_WIDTH)
-			);
-		}
-		if (movementState.dy !== 0) {
-			setPlayerState("y", (y) =>
-				clamp(y + distance * movementState.dy, 0, MAP_HEIGHT - PLAYER_HEIGHT)
-			);
-		}
-	});
-
-	let gameWindowElement: HTMLDivElement;
+	let gameWindowElement: HTMLDivElement; // Assigned in JSX ref
 
 	onMount(() => {
-		initControls({ controls: props.controls, movementState });
-		gameState.startGameLoop();
+		initControls({ controls: props.controls });
+		frameHandler.startGameLoop();
 	});
 
+	onCleanup(() => {
+		frameHandler.stopGameLoop();
+	});
+
+	const state = {
+		get map() {
+			return maps[props.mapName];
+		},
+		get mapPosition() {
+			return getMapPosition({
+				windowWidth: gameWindowElement?.clientWidth,
+				windowHeight: gameWindowElement?.clientHeight,
+				mapWidth: state.map.width * TILE_SIZE,
+				mapHeight: state.map.height * TILE_SIZE,
+			});
+		},
+	};
+
+	createEffect(() => {
+		playerMovementState.xMax = state.map.width * TILE_SIZE - PLAYER_WIDTH;
+		playerMovementState.yMax = state.map.height * TILE_SIZE - PLAYER_HEIGHT;
+	});
+
+	const gameWindowStyles = css`
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        background-color: white;
+        overflow: hidden;
+    `;
+
 	return (
-		<div
-			ref={gameWindowElement}
-			id="game-window"
-			class={css`
-                width: 100vw;
-                height: 100vh;
-                position: relative;
-                background-color: white;
-                overflow: hidden;
-            `}
-		>
-			<Map
-				width={MAP_WIDTH}
-				height={MAP_HEIGHT}
-				playerState={playerState}
-				window={gameWindowElement}
+		<div ref={gameWindowElement!} id="game-window" class={gameWindowStyles}>
+			<div
+				class={`map-wrapper ${css`
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    background: repeat;
+                `}`}
+				id={state.map.id}
+				style={{
+					transform: `translate(${state.mapPosition.x}px, ${state.mapPosition.y}px)`,
+					width: `${state.map.width * TILE_SIZE}px`,
+					height: `${state.map.height * TILE_SIZE}px`,
+					"background-image": `url(${state.map.backgroundTile})`,
+					"background-size": `${TILE_SIZE}px ${TILE_SIZE}px`,
+				}}
 			>
-				<PlayerCharacter {...playerState} spritePath={props.spritePath} />
+				<PlayerCharacter {...playerPosition} spritePath={props.spritePath} />
 				{props.children}
-			</Map>
+			</div>
 		</div>
 	);
 }
 
-interface PlayerControls {
-	up: string;
-	down: string;
-	left: string;
-	right: string;
-}
-
-type GameStateCallback = (elapsed: number) => void;
-class GameState {
-	#callbacks = new Set<GameStateCallback>();
+let i = 0;
+type FrameCallback = (elapsed: number) => void;
+/**
+ * Controls the game loop and frame callbacks
+ */
+class FrameHandler {
+	#callbacks = new Set<FrameCallback>();
+	i: number;
+	constructor(i: number) {
+		this.i = i;
+	}
 
 	/**
 	 * Register a callback to be called every frame
 	 * @param callback - A function to be called every frame, with the elapsed time since the last frame
 	 */
-	register(callback: GameStateCallback) {
+	onFrame(callback: FrameCallback) {
 		this.#callbacks.add(callback);
 	}
 
@@ -172,7 +142,7 @@ class GameState {
 	 * Unregister a callback that was previously registered
 	 * @param callback - The function to unregister
 	 */
-	unregister(callback: GameStateCallback) {
+	unregister(callback: FrameCallback) {
 		this.#callbacks.delete(callback);
 	}
 
@@ -183,6 +153,7 @@ class GameState {
 	#startTime: number | undefined = undefined;
 	#prevTime: number | undefined = undefined;
 	#gameStarted = false;
+	#gameStopped = false;
 	/**
 	 * Start the game loop - only call this once, after all components have been mounted
 	 */
@@ -196,46 +167,97 @@ class GameState {
 			if (this.#prevTime === undefined) this.#prevTime = time;
 
 			const elapsedSinceLastFrame = time - this.#prevTime;
-			if (elapsedSinceLastFrame > 10) {
+			if (elapsedSinceLastFrame > 0) {
 				this.#update(elapsedSinceLastFrame);
 			}
 			this.#prevTime = time;
-			requestAnimationFrame(frame);
+
+			if (!this.#gameStopped) requestAnimationFrame(frame);
 		};
 		requestAnimationFrame(frame);
 	}
+
+	stopGameLoop() {
+		this.#gameStopped = true;
+	}
 }
 
-function initControls(args: { controls: PlayerControls; movementState: PlayerMovementState }) {
+function movePlayer(timeElapsed: number) {
+	const SPEED = 200; // px per second
+	timeElapsed = timeElapsed / 1000; // convert to seconds from milliseconds
+	const distance = SPEED * timeElapsed;
+	if (playerMovementState.dx !== 0) {
+		setPlayerState("x", (x) =>
+			clamp(x + distance * playerMovementState.dx, 0, playerMovementState.xMax)
+		);
+	}
+	if (playerMovementState.dy !== 0) {
+		setPlayerState("y", (y) =>
+			clamp(y + distance * playerMovementState.dy, 0, playerMovementState.yMax)
+		);
+	}
+}
+
+interface PlayerControls {
+	up: string;
+	down: string;
+	left: string;
+	right: string;
+}
+
+function initControls(args: { controls: PlayerControls }) {
 	const handleKeyDown = (e: KeyboardEvent) => {
 		// Vertical movement
-		if (e.key === args.controls.up && args.movementState.dy !== 1) {
-			args.movementState.dy = -1;
-		} else if (e.key === args.controls.down && args.movementState.dy !== -1) {
-			args.movementState.dy = 1;
+		if (e.key === args.controls.up && playerMovementState.dy !== 1) {
+			playerMovementState.dy = -1;
+		} else if (e.key === args.controls.down && playerMovementState.dy !== -1) {
+			playerMovementState.dy = 1;
 		}
 
 		// Horizontal movement
-		if (e.key === args.controls.left && args.movementState.dx !== 1) {
-			args.movementState.dx = -1;
-		} else if (e.key === args.controls.right && args.movementState.dx !== -1) {
-			args.movementState.dx = 1;
+		if (e.key === args.controls.left && playerMovementState.dx !== 1) {
+			playerMovementState.dx = -1;
+		} else if (e.key === args.controls.right && playerMovementState.dx !== -1) {
+			playerMovementState.dx = 1;
 		}
 	};
 	const handleKeyUp = (e: KeyboardEvent) => {
-		if (e.key === args.controls.up && args.movementState.dy === -1) {
-			args.movementState.dy = 0;
+		if (e.key === args.controls.up && playerMovementState.dy === -1) {
+			playerMovementState.dy = 0;
 		}
-		if (e.key === args.controls.down && args.movementState.dy === 1) {
-			args.movementState.dy = 0;
+		if (e.key === args.controls.down && playerMovementState.dy === 1) {
+			playerMovementState.dy = 0;
 		}
-		if (e.key === args.controls.left && args.movementState.dx === -1) {
-			args.movementState.dx = 0;
+		if (e.key === args.controls.left && playerMovementState.dx === -1) {
+			playerMovementState.dx = 0;
 		}
-		if (e.key === args.controls.right && args.movementState.dx === 1) {
-			args.movementState.dx = 0;
+		if (e.key === args.controls.right && playerMovementState.dx === 1) {
+			playerMovementState.dx = 0;
 		}
 	};
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
+}
+
+function getMapPosition(options: {
+	mapWidth: number;
+	mapHeight: number;
+	windowWidth: number;
+	windowHeight: number;
+}) {
+	const calcOffset = (mapSize: number, windowSize: number, axis: "x" | "y") => {
+		if (mapSize > windowSize) {
+			const halfWindow = Math.ceil(windowSize / 2 ?? 0);
+			return -clamp(
+				playerPosition[axis] + (axis === "x" ? PLAYER_WIDTH / 2 : PLAYER_HEIGHT / 2), // center the player
+				halfWindow,
+				mapSize - halfWindow
+			);
+		} else return -mapSize / 2;
+	};
+
+	return {
+		x: calcOffset(options.mapWidth, options.windowWidth, "x"),
+		y: calcOffset(options.mapHeight, options.windowHeight, "y"),
+	};
 }

@@ -38,6 +38,7 @@
 		"eslint-plugin-astro": "^0.23.0",
 		"eslint-plugin-jsx-a11y": "^6.7.1",
 		"eslint-plugin-solid": "^0.9.4",
+		"eslint-plugin-tsdoc": "^0.2.17",
 		"open-props": "^1.5.5",
 		"postcss-jit-props": "^1.0.9",
 		"postcss-nesting": "^11.0.0",

@@ -3,6 +3,7 @@ import { A, Route, Router, Routes } from "@solidjs/router";
 import { For } from "solid-js";
 import { GameWindow } from "@/components/GameObjects";
 import maps, { type MapName } from "@/maps";
+import CharacterCreator from "@/components/CharacterCreator";
 
 interface Props {
 	ssrRoute: string;
@@ -33,20 +34,23 @@ export default function AppRouter(props: Props) {
 							/>
 						)}
 					</For>
+					<Route path="/character-creator" element={<CharacterCreator />} />
 				</Routes>
-				<nav
-					style={{
-						position: "absolute",
-						top: 0,
-						left: 0,
-					}}
-				>
-					<For each={Object.entries(maps)}>
-						{([, { displayName, id: mapId }]) => (
-							<A href={`/${mapId}`}>{displayName}</A>
-						)}
-					</For>
-				</nav>
+				{
+					//<nav
+					//style={{
+					//position: "absolute",
+					//top: 0,
+					//left: 0,
+					//}}
+					//>
+					//<For each={Object.entries(maps)}>
+					//{([, { displayName, id: mapId }]) => (
+					//<A href={`/${mapId}`}>{displayName}</A>
+					//)}
+					//</For>
+					//</nav>
+				}
 			</main>
 		</Router>
 	);

@@ -14,8 +14,22 @@ interface Props {
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
 	</head>
-	<body>
+	<body class="no-js">
+		<noscript>
+			<aside>
+				<p><strong>Heads up!</strong></p>
+				<p>
+					We've noticed your browser does not have JavaScript enabled!
+					While we're currently making an effort to function without
+					JavaScript, the functionality is incomplete. If you can, we
+					recommend enabling JavaScript in your browser for the best
+					experience!
+				</p>
+			</aside>
+		</noscript>
 		<slot />
 	</body>
-	<style></style>
+	<script>
+		document.body.classList.remove("no-js");
+	</script>
 </html>

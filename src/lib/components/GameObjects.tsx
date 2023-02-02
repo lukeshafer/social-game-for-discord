@@ -25,25 +25,6 @@ const playerMovementState = {
 	yMax: 0,
 };
 
-function PlayerCharacter(props: { spritePath: string; x: number; y: number }) {
-	return <Character spritePath={props.spritePath} x={props.x} y={props.y} />;
-}
-
-function Character(props: { spritePath: string; x: number; y: number }) {
-	return (
-		<img
-			class="character"
-			width={PLAYER_WIDTH}
-			height={PLAYER_HEIGHT}
-			src={props.spritePath}
-			alt=""
-			style={{
-				transform: `translate(${props.x}px, ${props.y}px)`,
-			}}
-		/>
-	);
-}
-
 export function GameWindow(
 	props: ParentProps<{
 		spritePath: string;
@@ -51,8 +32,7 @@ export function GameWindow(
 		mapName: MapName;
 	}>
 ) {
-	const frameHandler = new FrameHandler(i);
-	i = i + 1;
+	const frameHandler = new FrameHandler();
 	frameHandler.onFrame(movePlayer);
 
 	let gameWindowElement: HTMLDivElement; // Assigned in JSX ref
@@ -118,18 +98,31 @@ export function GameWindow(
 	);
 }
 
-let i = 0;
+function PlayerCharacter(props: { spritePath: string; x: number; y: number }) {
+	return <Character spritePath={props.spritePath} x={props.x} y={props.y} />;
+}
+
+function Character(props: { spritePath: string; x: number; y: number }) {
+	return (
+		<img
+			class="character"
+			width={PLAYER_WIDTH}
+			height={PLAYER_HEIGHT}
+			src={props.spritePath}
+			alt=""
+			style={{
+				transform: `translate(${props.x}px, ${props.y}px)`,
+			}}
+		/>
+	);
+}
+
 type FrameCallback = (elapsed: number) => void;
 /**
  * Controls the game loop and frame callbacks
  */
 class FrameHandler {
 	#callbacks = new Set<FrameCallback>();
-	i: number;
-	constructor(i: number) {
-		this.i = i;
-	}
-
 	/**
 	 * Register a callback to be called every frame
 	 * @param callback - A function to be called every frame, with the elapsed time since the last frame
@@ -206,7 +199,10 @@ interface PlayerControls {
 }
 
 function initControls(args: { controls: PlayerControls }) {
+	const currentKeysPressed = new Set<string>();
+	window.onblur = () => currentKeysPressed.forEach((key) => handleKeyUp({ key }));
 	const handleKeyDown = (e: KeyboardEvent) => {
+		currentKeysPressed.add(e.key);
 		// Vertical movement
 		if (e.key === args.controls.up && playerMovementState.dy !== 1) {
 			playerMovementState.dy = -1;
@@ -221,7 +217,8 @@ function initControls(args: { controls: PlayerControls }) {
 			playerMovementState.dx = 1;
 		}
 	};
-	const handleKeyUp = (e: KeyboardEvent) => {
+	const handleKeyUp = (e: Pick<KeyboardEvent, "key">) => {
+		currentKeysPressed.delete(e.key);
 		if (e.key === args.controls.up && playerMovementState.dy === -1) {
 			playerMovementState.dy = 0;
 		}

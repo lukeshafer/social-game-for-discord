@@ -21,8 +21,8 @@ const maps = {
 		id: "test-map",
 		displayName: "Test Map",
 		backgroundTile: grassTile,
-		width: 20,
-		height: 13,
+		width: 100,
+		height: 100,
 	},
 } satisfies Record<string, GameMap>;
 

@@ -1,5 +1,6 @@
 import { css } from "@acab/ecsstatic";
-import type { JSX, ParentProps } from "solid-js";
+import { createEffect, children, createUniqueId, type JSX, type ParentProps } from "solid-js";
+import type { ResolvedJSXElement } from "solid-js/types/reactive/signal";
 
 function CharacterCreator() {
 	const placeholder = "https://picsum.photos/100/100";
@@ -30,8 +31,8 @@ function CharacterCreator() {
 						<FeatureOption id="short" img={placeholder}>
 							Short
 						</FeatureOption>
-						<FeatureOption id="long" img={placeholder}>
-							Long
+						<FeatureOption id="tall" img={placeholder}>
+							Tall
 						</FeatureOption>
 					</Feature>
 				</Tab>
@@ -50,28 +51,49 @@ function TabGroup(props: ParentProps) {
 
 function Tab(props: { title: string; children: JSX.Element }) {
 	return (
-		<section>
-			<h2>{props.title}</h2>
-			<main>{props.children}</main>
-		</section>
+		<fieldset>
+			<legend>{props.title}</legend>
+			{props.children}
+		</fieldset>
 	);
 }
 
 function Feature(props: { name: string; children: JSX.Element }) {
+	const id = createUniqueId();
+	const childElements = children(() => props.children);
+	const imageList = () => {
+		return childElements
+			.toArray()
+			.map((child) => {
+				if (child instanceof HTMLElement)
+					return {
+						id: child.id,
+						img: child.dataset.img ?? "",
+					};
+				return null;
+			})
+			.filter((child) => child instanceof HTMLElement) as {
+				id: string;
+				img: string;
+			}[];
+	};
+	// TODO: use the imageList to display the image of the currently selected option
+
 	return (
-		<section>
-			<h3>{props.name}</h3>
-			<main>{props.children}</main>
-		</section>
+		<>
+			<label for={id}>{props.name}</label>
+			<select id={id} name={props.name.toLowerCase().replace(" ", "-")}>
+				{props.children}
+			</select>
+		</>
 	);
 }
 
 function FeatureOption(props: { img: string; id: string; children: string }) {
 	return (
-		<div>
-			<p>{props.children}</p>
-			<img src={props.img} />
-		</div>
+		<option data-img={props.img} value={props.id}>
+			{props.children}
+		</option>
 	);
 }
 

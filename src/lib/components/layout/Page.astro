@@ -14,7 +14,7 @@ interface Props {
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
 	</head>
-	<body class="no-js">
+	<body>
 		<noscript>
 			<aside>
 				<p><strong>Heads up!</strong></p>
@@ -30,6 +30,6 @@ interface Props {
 		<slot />
 	</body>
 	<script>
-		document.body.classList.remove("no-js");
+		document.body.classList.add("js");
 	</script>
 </html>

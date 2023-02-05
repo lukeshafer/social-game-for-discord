@@ -1,5 +1,7 @@
 ---
 import "../../../app.postcss";
+import woodTile from "@/assets/sprites/wood.svg";
+import grassTile from "@/assets/sprites/grass-tile.svg";
 
 interface Props {
 	title: string;
@@ -12,9 +14,20 @@ interface Props {
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
+			rel="stylesheet"
+		/>
 		<title>Astro</title>
 	</head>
-	<body>
+	<body
+		style={{
+			"--wood-tile": `url(${woodTile})`,
+			"--grass-tile": `url(${grassTile})`,
+		}}
+	>
 		<noscript>
 			<aside>
 				<p><strong>Heads up!</strong></p>

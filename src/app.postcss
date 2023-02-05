@@ -1,36 +1,77 @@
 /* Write your global styles here, in PostCSS syntax */
 @layer normalize, base, utilities;
 
-@import 'open-props/normalize' layer(normalize);
+@import "open-props/normalize/light" layer(normalize);
 
 @layer base {
-	/* Base styles will go here */
+    @font-face {
+        font-family: "Apple ][";
+        src: url("/fonts/Apple ][.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Hellovetica";
+        src: url("/fonts/hellovetica.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Pixel Six";
+        src: url("/fonts/pixelsix00.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "Savior";
+        src: url("/fonts/Savior1.ttf") format("truetype");
+    }
+
+    html {
+        font-size: var(--font-size-fluid-1);
+    }
+
+    body {
+        font-family: "Savior", var(--font-mono);
+        font-size: 130%;
+        line-height: 1;
+        /*letter-spacing: -0.2em;*/
+    }
+
+    p {
+        font-size: 2rem;
+    }
+
+    * {
+        border-radius: 0;
+    }
 }
 
 @layer utilities {
-	/**
+    /**
 	* Utility class to hide an element visually, but still make it available to screen readers.
 	*/
-	.visibly-hidden {
-		clip: rect(1px, 1px, 1px, 1px);
-		height: 1px;
-		overflow: hidden;
-		position: absolute;
-		white-space: nowrap;
-		width: 1px;
-	}
+    .visibly-hidden {
+        clip: rect(1px, 1px, 1px, 1px);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
 
-	/**
+    /**
 	* Utility class for a wrapper element which will center its children horizontally.
 	* @param --max-width: 55rem
 	*/
-	.center-content-block {
-		--max-width: 55rem;
+    .center-content-block {
+        --max-width: 55rem;
 
-		display: grid;
-		grid-template-columns: min(100%, var(--max-width));
-		padding-inline: max(1rem, 3vw);
-		justify-content: center;
-		gap: 1rem;
-	}
+        display: grid;
+        grid-template-columns: min(100%, var(--max-width));
+        padding-inline: max(1rem, 3vw);
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    :root {
+        --border: 3px solid black;
+    }
 }

@@ -3,7 +3,6 @@ module.exports = {
 	plugins: [
 		"@typescript-eslint",
 		"solid",
-		"eslint-plugin-tsdoc",
 		//"jsx-a11y"
 	],
 	extends: [
@@ -21,9 +20,6 @@ module.exports = {
 		project: ["tsconfig.json"],
 	},
 	root: true,
-	rules: {
-		"tsdoc/syntax": "warn",
-	},
 
 	overrides: [
 		{

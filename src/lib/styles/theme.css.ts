@@ -1,30 +1,31 @@
-import { createTheme, } from '@vanilla-extract/css'
+import { createTheme } from '@vanilla-extract/css';
+import { colors } from './colors.css';
 
 export const [themeClass, vars] = createTheme({
-	colors: {
-		teal: {
-			1: '#C3FAE8',
-		},
-		sand: {
-			1: '#E6E4DC',
-		},
-		gray: {
-			1: '#F1F3F5',
-		}
-	},
-
+	colors,
 	// "3px solid black",
-	border: border()
-} as const)
+	border: border(),
+
+	tiles: {
+		wood: css`url("/sprites/wood.svg")`,
+	},
+} as const);
 
 function border() {
-	const width = "3px"
-	const style = "solid"
-	const color = "black"
+	const width = '3px';
+	const style = 'solid';
+	const color = 'black';
 	return {
 		width,
 		style,
 		color,
 		shorthand: `${width} ${style} ${color}`,
-	} as const
+	} as const;
+}
+
+/** CSS tagged template performs no transformations on the CSS string
+ *   and just exists to provide syntax highlighting.
+ */
+function css(...input: Parameters<typeof String.raw>) {
+	return String.raw(...input);
 }

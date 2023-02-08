@@ -2,77 +2,128 @@
 @layer normalize, base, utilities;
 
 /*@import "open-props/normalize/light" layer(normalize);*/
-@import "normalize.css" layer(normalize);
+@import 'normalize.css' layer(normalize);
+
+@layer normalize {
+	/****** Elad Shechter's RESET *******/
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+		font-family: inherit;
+	}
+	:where(a) {
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+	}
+	:where(button) {
+		background-color: transparent;
+		color: inherit;
+		border-width: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+	:where(figure) {
+		margin: 0;
+	}
+	:where(input::-moz-focus-inner) {
+		border: 0;
+		padding: 0;
+		margin: 0;
+	}
+	:where(ul, ol, dd) {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	:where(h1, h2, h3, h4, h5, h6) {
+		margin: 0;
+		font-size: inherit;
+		font-weight: inherit;
+	}
+	:where(p) {
+		margin: 0;
+	}
+	:where(cite) {
+		font-style: normal;
+	}
+	:where(fieldset) {
+		border-width: 0;
+		padding: 0;
+		margin: 0;
+	}
+}
 
 @layer base {
-    @font-face {
-        font-family: "Apple ][";
-        src: url("/fonts/Apple ][.ttf") format("truetype");
-    }
+	@font-face {
+		font-family: 'Apple ][';
+		src: url('/fonts/Apple ][.ttf') format('truetype');
+	}
 
-    @font-face {
-        font-family: "Hellovetica";
-        src: url("/fonts/hellovetica.ttf") format("truetype");
-    }
+	@font-face {
+		font-family: 'Hellovetica';
+		src: url('/fonts/hellovetica.ttf') format('truetype');
+	}
 
-    @font-face {
-        font-family: "Pixel Six";
-        src: url("/fonts/pixelsix00.ttf") format("truetype");
-    }
+	@font-face {
+		font-family: 'Pixel Six';
+		src: url('/fonts/pixelsix00.ttf') format('truetype');
+	}
 
-    @font-face {
-        font-family: "Savior";
-        src: url("/fonts/Savior1.ttf") format("truetype");
-    }
+	@font-face {
+		font-family: 'Savior';
+		src: url('/fonts/Savior1.ttf') format('truetype');
+	}
 
-    html {
-        font-size: var(--font-size-fluid-1);
-    }
+	html {
+		font-size: var(--font-size-fluid-1);
+	}
 
-    body {
-        font-family: "Savior", var(--font-mono);
-        font-size: 130%;
-        line-height: 1;
-        /*letter-spacing: -0.2em;*/
-    }
+	body {
+		font-family: 'Savior', var(--font-mono);
+		font-size: 130%;
+		line-height: 1;
+		/*letter-spacing: -0.2em;*/
+	}
 
-    p {
-        font-size: 2rem;
-    }
+	p {
+		font-size: 2rem;
+	}
 
-    * {
-        border-radius: 0;
-    }
+	* {
+		border-radius: 0;
+	}
 }
 
 @layer utilities {
-    /**
+	/**
 	* Utility class to hide an element visually, but still make it available to screen readers.
 	*/
-    .visibly-hidden {
-        clip: rect(1px, 1px, 1px, 1px);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
-    }
+	.visibly-hidden {
+		clip: rect(1px, 1px, 1px, 1px);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
 
-    /**
+	/**
 	* Utility class for a wrapper element which will center its children horizontally.
 	* @param --max-width: 55rem
 	*/
-    .center-content-block {
-        --max-width: 55rem;
+	.center-content-block {
+		--max-width: 55rem;
 
-        display: grid;
-        grid-template-columns: min(100%, var(--max-width));
-        padding-inline: max(1rem, 3vw);
-        justify-content: center;
-        gap: 1rem;
-    }
+		display: grid;
+		grid-template-columns: min(100%, var(--max-width));
+		padding-inline: max(1rem, 3vw);
+		justify-content: center;
+		gap: 1rem;
+	}
 
-    :root {
-        --border: 3px solid black;
-    }
+	:root {
+		--border: 3px solid black;
+	}
 }

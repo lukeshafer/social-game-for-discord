@@ -7,11 +7,39 @@ const css = String.raw;
 
 const formBackground = createVar();
 export default {
+	root: style({
+		backgroundImage: vars.tiles.wood,
+		backgroundRepeat: 'repeat',
+		backgroundSize: '128px',
+
+		minHeight: '100svh',
+		fontSize: '1.7rem',
+
+		display: 'grid',
+		gridTemplateRows: 'auto',
+		gridAutoRows: css`minmax(60%, 1fr)`,
+		gridTemplateColumns: css`repeat(auto-fit, 400px)`,
+		flexWrap: 'wrap',
+
+		justifyContent: 'center',
+		placeItems: 'center',
+
+		padding: '1rem',
+		//paddingBottom: css`max(10%, 1rem)`,
+	}),
+
 	characterPreview: style({
 		backgroundColor: vars.colors.teal[1],
 		border: vars.border.shorthand,
+		fontSize: '1.5rem',
 		padding: '1rem',
-		height: 'min-content',
+		height: 'max-content',
+	}),
+
+	characterPreviewImage: style({
+		width: '10rem',
+		height: 'auto',
+		maxWidth: '15vw',
 	}),
 
 	characterForm: style({
@@ -34,7 +62,8 @@ export default {
 		padding: '0.1rem 0.3rem',
 		border: vars.border.shorthand,
 		transform: `translateY(${vars.border.width})`,
-		color: '333',
+		color: vars.colors.gray['8'],
+		backgroundColor: vars.colors.sand[2],
 
 		selectors: {
 			'body:not(.js) &': {
@@ -94,6 +123,13 @@ export default {
 		borderRadius: 0,
 	}),
 
+	textInput: style({
+		width: '100%',
+		maxWidth: '12rem',
+		border: vars.border.shorthand,
+		paddingInline: '0.5rem',
+	}),
+
 	featureInputWrapper: style({
 		display: 'flex',
 		gap: '0.3rem',
@@ -128,24 +164,5 @@ export default {
 				color: 'inherit',
 			},
 		},
-	}),
-	root: style({
-		backgroundImage: css`url("/sprites/wood.svg")`,
-		backgroundRepeat: 'repeat',
-
-		minHeight: '100vh',
-		fontSize: '1.7rem',
-
-		display: 'grid',
-		gridTemplateRows: css`auto fit-content(1fr)`,
-		gridTemplateColumns: css`repeat(auto-fit, minmax(auto, 500px))`,
-		flexWrap: 'wrap',
-
-		justifyContent: 'center',
-		placeItems: 'center',
-		gap: '2rem',
-
-		padding: '1rem',
-		paddingBottom: css`max(10%, 1rem)`,
 	}),
 };

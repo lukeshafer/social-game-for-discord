@@ -1,10 +1,16 @@
 ---
-import Router from "@/router/+router";
-import Page from "../../lib/components/layout/Page.astro";
+import Router from './+router';
+import Page from '../../lib/components/layout/Page.astro';
+import LukeSprite from '@/assets/sprites/LukeSprite.svg';
 
 // TODO: make this a protected route, after adding auth
 ---
 
-<Page title="Astro">
-	<Router client:load base="/app" ssrRoute={Astro.url.pathname} />
+<Page title="Game">
+	<Router
+		client:load
+		base="/app"
+		ssrRoute={Astro.url.pathname}
+		sprite={LukeSprite}
+	/>
 </Page>

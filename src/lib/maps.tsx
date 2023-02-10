@@ -1,3 +1,22 @@
+import grassTile from '@/assets/sprites/grass-tile.svg';
+
+const maps = {
+	testMap: {
+		id: 'test-map',
+		displayName: 'Test Map',
+		backgroundTile: grassTile,
+		width: 100,
+		height: 100,
+		objects: []
+	},
+} satisfies Record<string, GameMap>;
+
+export const mapList = Object.keys(maps) as MapName[];
+export function getMap(name: MapName) {
+	return maps[name];
+}
+
+/*** TYPES ***/
 /**
  * Data for a map
  * @remarks a map is a location the player can walk around in, like a house or a town
@@ -13,18 +32,22 @@ export interface GameMap {
 	backgroundTile: string;
 	width: number;
 	height: number;
+	objects: GameObject[];
 }
 
-import grassTile from "@/assets/sprites/grass-tile.svg";
-const maps = {
-	testMap: {
-		id: "test-map",
-		displayName: "Test Map",
-		backgroundTile: grassTile,
-		width: 100,
-		height: 100,
-	},
-} satisfies Record<string, GameMap>;
+interface GameObject {
+	x: number;
+	y: number;
+	direction: Direction;
+}
 
-export default maps;
+const DIRECTION = {
+	NORTH: 1,
+	SOUTH: 2,
+	WEST: 3,
+	EAST: 4,
+} as const;
+
+type Direction = keyof typeof DIRECTION;
+
 export type MapName = keyof typeof maps;

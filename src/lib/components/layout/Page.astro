@@ -7,6 +7,8 @@ import grassTile from "@/assets/sprites/grass-tile.svg";
 interface Props {
 	title: string;
 }
+
+const { title } = Astro.props;
 ---
 
 <html lang="en">
@@ -21,7 +23,7 @@ interface Props {
 			href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
 			rel="stylesheet"
 		/>
-		<title>Astro</title>
+		<title>{title}</title>
 	</head>
 	<body
 		style={{

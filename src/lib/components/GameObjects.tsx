@@ -1,18 +1,17 @@
-import { createEffect, onCleanup, onMount, ParentProps } from 'solid-js';
+import { createEffect, For, onCleanup, onMount, ParentProps } from 'solid-js';
 import type { MapName } from '@/maps';
 import { NPCs, NPC_Name } from '@/data/npcs';
-import { initPlayer, Player, type PlayerControls } from '@/objects/player';
-import { initMap } from '@/objects/map';
+//import { initPlayer, Player, type PlayerControls } from '@/objects/player';
+//import { initMap } from '@/objects/map';
+import { player, map, npcs, gameView } from '@/state';
+import type { PlayerControls } from '@/state';
 import { FrameHandler } from '@/objects/frameHandler';
 import style from './styles/GameObjects.css';
 import { TILE_SIZE, PLAYER_WIDTH, PLAYER_HEIGHT } from '@/constants';
-import { createStore, type Store } from 'solid-js/store';
+
+let debug = false;
 
 // TODO fix how state resets in new room, can wait until proper rooms exist
-export type WindowState = Store<{
-	width: number;
-	height: number;
-}>;
 
 export function GameWindow(
 	props: ParentProps<{
@@ -21,31 +20,24 @@ export function GameWindow(
 		mapName: MapName;
 	}>
 ) {
-	const [windowSize, setWindowSize] = createStore<WindowState>({
-		width: 0,
-		height: 0,
-	});
-	const player = initPlayer({ startX: 0, startY: 0 });
-	const map = initMap({
-		player: player,
-		name: props.mapName,
-		get window() {
-			return windowSize;
-		},
+	player.placeAt(0, 0);
+	createEffect(() => {
+		map.setTo(props.mapName);
 	});
 
 	const frameHandler = new FrameHandler();
-	frameHandler.onFrame((timeElapsed) => player.move(timeElapsed));
+	frameHandler.onFrame((time) => player.moveFor(time));
 
 	let gameWindowElement: HTMLDivElement; // Assigned in JSX ref
 
 	const refreshWindowSize = () => {
-		setWindowSize({
-			width: gameWindowElement.clientWidth,
-			height: gameWindowElement.clientHeight,
-		});
-		console.log(windowSize);
+		gameView.setSize(
+			gameWindowElement.clientWidth,
+			gameWindowElement.clientHeight
+		);
 	};
+
+	npcs.resetTo([{ key: 'TonyOnion', x: 300, y: 300 }]);
 
 	onMount(() => {
 		player.initControls(props.controls);
@@ -60,9 +52,9 @@ export function GameWindow(
 	});
 
 	createEffect(() => {
-		player.setBounds({
-			xMax: map.width * TILE_SIZE - PLAYER_WIDTH,
-			yMax: map.height * TILE_SIZE - PLAYER_HEIGHT,
+		player.setBoundsTo({
+			xMax: map.info.width * TILE_SIZE - PLAYER_WIDTH,
+			yMax: map.info.height * TILE_SIZE - PLAYER_HEIGHT,
 		});
 	});
 
@@ -70,28 +62,30 @@ export function GameWindow(
 		<div ref={gameWindowElement!} id="game-window" class={style.gameWindow}>
 			<div
 				class={style.mapWrapper}
-				id={map.id}
+				id={map.info.id}
 				style={{
-					transform: `translate(${map.x}px, ${map.y}px)`,
-					width: `${map.width * TILE_SIZE}px`,
-					height: `${map.height * TILE_SIZE}px`,
-					'background-image': `url(${map.backgroundTile})`,
+					transform: `translate(${map.position.x}px, ${map.position.y}px)`,
+					width: `${map.info.width * TILE_SIZE}px`,
+					height: `${map.info.height * TILE_SIZE}px`,
+					'background-image': `url(${map.info.backgroundTile})`,
 					'background-size': `${TILE_SIZE}px ${TILE_SIZE}px`,
 				}}>
-				<PlayerCharacter player={player} spritePath={props.sprite} />
-				<NPC x={800} y={300} name="TonyOnion" />
+				<PlayerCharacter spritePath={props.sprite} />
+				<For each={npcs.list}>
+					{(npc) => <NPC x={npc.x} y={npc.y} name={npc.key} />}
+				</For>
 				{props.children}
 			</div>
 		</div>
 	);
 }
 
-export function PlayerCharacter(props: { spritePath: string; player: Player }) {
+export function PlayerCharacter(props: { spritePath: string }) {
 	return (
 		<Character
 			spritePath={props.spritePath}
-			x={props.player.position.x}
-			y={props.player.position.y}
+			x={player.position.x}
+			y={player.position.y}
 			width={PLAYER_WIDTH}
 			height={PLAYER_HEIGHT}
 		/>
@@ -119,13 +113,14 @@ function Character(props: {
 }) {
 	return (
 		<img
-			class="character"
+			class={style.character}
 			width={props.width}
 			height={props.height}
 			src={props.spritePath}
 			alt=""
 			style={{
 				transform: `translate(${props.x}px, ${props.y}px)`,
+				border: debug ? '1px solid red' : undefined,
 			}}
 		/>
 	);

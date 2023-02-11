@@ -14,5 +14,11 @@ export default {
 		top: '50%',
 		left: '50%',
 		background: 'repeat',
-	})
-}
+	}),
+
+	character: style({
+		position: 'absolute',
+		top: 0,
+		left: 0,
+	}),
+};

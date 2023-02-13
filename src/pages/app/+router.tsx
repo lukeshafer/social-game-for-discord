@@ -1,8 +1,8 @@
-import { Route, Router, Routes } from "@solidjs/router";
-import { For } from "solid-js";
-import { GameWindow } from "@/components/GameObjects";
-import { getMap, mapList } from "@/maps";
-import CharacterCreator from "@/components/CharacterCreator";
+import { Route, Router, Routes } from '@solidjs/router';
+import { For } from 'solid-js';
+import { GameWindow } from '@/components/GameObjects';
+import { maps, mapList } from '@/data';
+import CharacterCreator from '@/components/CharacterCreator';
 
 export default function AppRouter(props: {
 	ssrRoute: string;
@@ -16,14 +16,15 @@ export default function AppRouter(props: {
 					<For each={mapList}>
 						{(mapName) => (
 							<Route
-								path={getMap(mapName).id}
+								path={maps[mapName].id}
 								element={
 									<GameWindow
 										controls={{
-											up: "e",
-											down: "d",
-											left: "s",
-											right: "f",
+											up: 'e',
+											down: 'd',
+											left: 's',
+											right: 'f',
+											interact: 'r',
 										}}
 										sprite={props.sprite}
 										mapName={mapName}

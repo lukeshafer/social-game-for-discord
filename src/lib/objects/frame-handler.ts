@@ -34,7 +34,7 @@ export class FrameHandler {
 	 */
 	startGameLoop() {
 		if (this.#gameStarted) {
-			throw new Error("Game loop already started");
+			throw new Error('Game loop already started');
 		}
 		this.#gameStarted = true;
 		const frame = (time: number) => {

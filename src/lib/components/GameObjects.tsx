@@ -1,14 +1,13 @@
 import { createEffect, For, onCleanup, onMount, ParentProps } from 'solid-js';
-import type { MapName } from '@/maps';
-import { NPCs, NPC_Name } from '@/data/npcs';
-//import { initPlayer, Player, type PlayerControls } from '@/objects/player';
-//import { initMap } from '@/objects/map';
+import type { MapName } from '@/data';
+import { NPCs, NPC_Name } from '@/data';
 import { player, map, npcs, gameView } from '@/state';
 import type { PlayerControls } from '@/state';
-import { FrameHandler } from '@/objects/frameHandler';
+import { FrameHandler } from '@/objects/frame-handler';
 import style from './styles/GameObjects.css';
 import { TILE_SIZE, PLAYER_WIDTH, PLAYER_HEIGHT } from '@/constants';
 
+// eslint-disable-next-line prefer-const
 let debug = false;
 
 // TODO fix how state resets in new room, can wait until proper rooms exist

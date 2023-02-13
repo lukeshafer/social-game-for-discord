@@ -35,7 +35,7 @@ export class InteractionHandler {
 	}
 }
 
-interface InteractionHitBox {
+export interface InteractionHitBox {
 	x: number;
 	y: number;
 	width: number;

@@ -1,14 +1,28 @@
-import { createEffect, For, onCleanup, onMount, ParentProps } from 'solid-js';
+import {
+	createEffect,
+	For,
+	onCleanup,
+	onMount,
+	ParentProps,
+	Show,
+} from 'solid-js';
 import type { MapName } from '@/data';
 import { NPCs, NPC_Name } from '@/data';
-import { player, map, npcs, gameView } from '@/state';
-import type { PlayerControls } from '@/state';
+import { player, type PlayerControls } from '@/state/player';
+import { map } from '@/state/map';
+import { npcs } from '@/state/npcs';
+import { gameView, dialog } from '@/state/ui';
+
 import { FrameHandler } from '@/objects/frame-handler';
 import style from './styles/GameObjects.css';
 import { TILE_SIZE, PLAYER_WIDTH, PLAYER_HEIGHT } from '@/constants';
+import { DialogBox } from '@/components/ui';
 
 // eslint-disable-next-line prefer-const
 let debug = false;
+if (process.env.NODE_ENV === 'development') {
+	debug = true;
+}
 
 // TODO fix how state resets in new room, can wait until proper rooms exist
 
@@ -75,6 +89,13 @@ export function GameWindow(
 				</For>
 				{props.children}
 			</div>
+			<Show when={dialog.isOpen}>
+				<DialogBox
+					text={dialog.text}
+					speaker={dialog.speaker}
+					close={dialog.close}
+				/>
+			</Show>
 		</div>
 	);
 }

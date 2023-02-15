@@ -1,9 +1,8 @@
-import { createEffect, createMemo } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
+import { collision } from './collision';
 
 import { clamp } from '@/utils';
-import { NPCs, maps } from '@/data';
-import type { NPC, NPC_Name, GameMap, MapName } from '@/data';
 import { TILE_SIZE, PLAYER_WIDTH, PLAYER_HEIGHT } from '@/constants';
 import {
 	InteractionHandler,
@@ -30,6 +29,7 @@ type DirectionEnum = typeof Direction;
 type DirectionValue = DirectionEnum[keyof DirectionEnum];
 
 const interactionHandler = new InteractionHandler();
+export const playerInteractionHandler = interactionHandler;
 
 let isControlsSet = false;
 let curDir: DirectionValue = Direction.down;
@@ -40,6 +40,7 @@ export const [player, updatePlayer] = createStore({
 	dy: 0 as Delta,
 	xMax: 0,
 	yMax: 0,
+	movementLocked: false,
 	get direction() {
 		return playerDirection();
 	},
@@ -58,6 +59,7 @@ export const [player, updatePlayer] = createStore({
 		updatePlayer('yMax', bounds.yMax);
 	},
 	moveFor: (timeElapsed: number) => {
+		if (player.movementLocked) return;
 		const SPEED = 200; // px per second
 		timeElapsed = timeElapsed / 1000; // convert to seconds from milliseconds
 		const distance = SPEED * timeElapsed;
@@ -159,10 +161,15 @@ export const [player, updatePlayer] = createStore({
 		window.addEventListener('keyup', handleKeyUp);
 		isControlsSet = true;
 	},
+	setMovementLocked: (locked: boolean) => {
+		updatePlayer('movementLocked', locked);
+	},
 });
+
 const playerPosition = createMemo(() => {
 	return { x: player.x, y: player.y } as const;
 });
+
 const playerDirection = createMemo(() => {
 	const dx = player.dx;
 	const dy = player.dy;
@@ -174,6 +181,7 @@ const playerDirection = createMemo(() => {
 	}
 	return curDir;
 });
+
 const playerMovementData = createMemo(() => {
 	return {
 		dx: player.dx,
@@ -182,146 +190,3 @@ const playerMovementData = createMemo(() => {
 		yMax: player.yMax,
 	};
 });
-createEffect(() => {
-	console.log(player.direction);
-});
-
-export const [map, updateMap] = createStore({
-	name: undefined as MapName | undefined,
-	get info(): GameMap {
-		if (!this.name)
-			return {
-				id: '',
-				width: 0,
-				height: 0,
-				objects: [],
-				displayName: '',
-				backgroundTile: '',
-			};
-		return maps[this.name];
-	},
-	get position(): { x: number; y: number } {
-		if (!this.info) return { x: 0, y: 0 };
-		const { width, height } = this.info,
-			[mapWidth, mapHeight] = [width * TILE_SIZE, height * TILE_SIZE],
-			{ height: viewHeight, width: viewWidth } = gameView,
-			[minX, minY] = [viewWidth / 2, viewHeight / 2],
-			[maxX, maxY] = [mapWidth - minX, mapHeight - minY];
-		return {
-			x:
-				mapWidth > viewWidth
-					? -clamp(player.x + PLAYER_WIDTH / 2, minX, maxX)
-					: -mapWidth / 2,
-			y:
-				mapHeight > viewHeight
-					? -clamp(player.y + PLAYER_HEIGHT / 2, minY, maxY)
-					: -mapHeight / 2,
-		};
-	},
-	setTo: (name: MapName) => {
-		updateMap('name', name);
-	},
-});
-
-export const [gameView, setGameView] = createStore({
-	width: 0,
-	height: 0,
-	setSize: (width: number, height: number) => {
-		setGameView('width', width);
-		setGameView('height', height);
-	},
-});
-
-export const [npcs, updateNpcs] = createStore({
-	list: [] as NPCState[],
-	add: (npc: NPCInitState) => {
-		const info = NPCs[npc.key];
-		const npcState = { ...npc, info };
-		updateNpcs('list', (npcs) => [...npcs, npcState]);
-
-		if (info.messages.length > 0) npcs.registerInteraction(npcState);
-	},
-	resetTo: (input: NPCInitState[]) => {
-		const npcStateArray = input.map((npc) => ({ ...npc, info: NPCs[npc.key] }));
-		updateNpcs('list', npcStateArray);
-		interactionHandler.reset();
-		npcStateArray.forEach((npc) => {
-			if (npc.info.messages.length > 0) npcs.registerInteraction(npc);
-		});
-	},
-	registerInteraction(npc: NPCState) {
-		let currentIndex = 0;
-		interactionHandler.registerInteraction({
-			x: npc.x,
-			y: npc.y,
-			width: npc.info.width * TILE_SIZE,
-			height: npc.info.height * TILE_SIZE,
-			callback: () => {
-				alert(npc.info.messages[currentIndex]);
-				currentIndex = (currentIndex + 1) % npc.info.messages.length;
-			},
-		});
-	},
-
-	get collisionData() {
-		return;
-	},
-});
-
-type NPCInitState = Omit<NPCState, 'info'>;
-interface NPCState {
-	info: NPC;
-	key: NPC_Name;
-	x: number;
-	y: number;
-}
-
-export type Player = typeof player;
-
-//let isColliding;
-const collisionObjects = createMemo<CollisionBounds[]>(() => {
-	const npcCollisionData = npcs.list.map((npc) => ({
-		x: npc.x,
-		y: npc.y,
-		width: npc.info.width * TILE_SIZE,
-		height: npc.info.height * TILE_SIZE,
-	}));
-	// ... other collision data
-	return [...npcCollisionData];
-});
-const collision = {
-	check: (target: CollisionBounds) =>
-		collisionObjects().find((obj) => {
-			if (target.x + target.width <= obj.x) return false;
-			if (target.x >= obj.x + obj.width) return false;
-			if (target.y + target.height <= obj.y) return false;
-			if (target.y >= obj.y + obj.height) return false;
-			return true;
-		}),
-	handle: (axis: 'x' | 'y', newPos: number) => {
-		const delta = player[`d${axis}`];
-		if (delta === 0) return newPos;
-		const collisionObject = collision.check({
-			x: axis === 'x' ? newPos : player.x,
-			y: axis === 'y' ? newPos : player.y,
-			height: PLAYER_HEIGHT,
-			width: PLAYER_WIDTH,
-		});
-
-		if (!collisionObject) return newPos;
-
-		const objSize =
-			axis === 'x' ? collisionObject.width : collisionObject.height;
-		const playerSize = axis === 'x' ? PLAYER_WIDTH : PLAYER_HEIGHT;
-		return delta === 1
-			? collisionObject[axis] - playerSize
-			: collisionObject[axis] + objSize;
-	},
-};
-
-interface CollisionBounds {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-}

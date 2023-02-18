@@ -26,6 +26,7 @@ const [dialogStore, setDialog] = createStore({
 		setDialog('text', '');
 		setDialog('speaker', '');
 	},
+	// TODO: implement a "next" method for longer dialogues
 });
 
 export const [gameView] = createStore(gameViewStore);

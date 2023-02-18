@@ -20,11 +20,12 @@ export default function AppRouter(props: {
 								element={
 									<GameWindow
 										controls={{
-											up: 'e',
-											down: 'd',
-											left: 's',
-											right: 'f',
-											interact: 'r',
+											up: ['e'],
+											down: ['d'],
+											left: ['s'],
+											right: ['f'],
+											confirm: ['r', 'Enter'],
+											cancel: ['w', 'Escape'],
 										}}
 										sprite={props.sprite}
 										mapName={mapName}

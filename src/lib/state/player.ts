@@ -1,6 +1,7 @@
 import { createMemo } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { collision } from './collision';
+import { dialog } from './ui';
 
 import { clamp } from '@/utils';
 import { TILE_SIZE, PLAYER_WIDTH, PLAYER_HEIGHT } from '@/constants';
@@ -12,11 +13,12 @@ import {
 type Delta = 0 | 1 | -1;
 
 export interface PlayerControls {
-	up: string;
-	down: string;
-	left: string;
-	right: string;
-	interact: string;
+	up: string[];
+	down: string[];
+	left: string[];
+	right: string[];
+	confirm: string[];
+	cancel: string[];
 }
 
 const Direction = {
@@ -90,20 +92,24 @@ export const [player, updatePlayer] = createStore({
 		const handleKeyDown = (e: KeyboardEvent) => {
 			currentKeysPressed.add(e.key);
 			// Vertical movement
-			if (e.key === controls.up && player.dy !== 1) {
+			if (controls.up.includes(e.key) && player.dy !== 1) {
 				updatePlayer('dy', -1);
-			} else if (e.key === controls.down && player.dy !== -1) {
+			} else if (controls.down.includes(e.key) && player.dy !== -1) {
 				updatePlayer('dy', 1);
 			}
 
 			// Horizontal movement
-			if (e.key === controls.left && player.dx !== 1) {
+			if (controls.left.includes(e.key) && player.dx !== 1) {
 				updatePlayer('dx', -1);
-			} else if (e.key === controls.right && player.dx !== -1) {
+			} else if (controls.right.includes(e.key) && player.dx !== -1) {
 				updatePlayer('dx', 1);
 			}
 
-			if (e.key === controls.interact) {
+			if (controls.confirm.includes(e.key)) {
+				if (dialog.isOpen) {
+					dialog.close();
+					return;
+				}
 				let directionData: InteractionHitBox;
 				switch (player.direction) {
 					case 1:
@@ -141,19 +147,23 @@ export const [player, updatePlayer] = createStore({
 
 				interactionHandler.checkForInteraction(directionData);
 			}
+
+			if (controls.cancel.includes(e.key)) {
+				dialog.close();
+			}
 		};
 		const handleKeyUp = (e: Pick<KeyboardEvent, 'key'>) => {
 			currentKeysPressed.delete(e.key);
-			if (e.key === controls.up && player.dy === -1) {
+			if (controls.up.includes(e.key) && player.dy === -1) {
 				updatePlayer('dy', 0);
 			}
-			if (e.key === controls.down && player.dy === 1) {
+			if (controls.down.includes(e.key) && player.dy === 1) {
 				updatePlayer('dy', 0);
 			}
-			if (e.key === controls.left && player.dx === -1) {
+			if (controls.left.includes(e.key) && player.dx === -1) {
 				updatePlayer('dx', 0);
 			}
-			if (e.key === controls.right && player.dx === 1) {
+			if (controls.right.includes(e.key) && player.dx === 1) {
 				updatePlayer('dx', 0);
 			}
 		};

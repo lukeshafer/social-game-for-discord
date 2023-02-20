@@ -8,21 +8,29 @@ import {
 	Switch,
 	Match,
 	createEffect,
-	For,
+	Index,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import type { JSX, Signal } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
-import LukeSprite from '@/assets/sprites/LukeSprite.svg';
 import { themeClass } from '@/styles/theme.css';
 
 import styles from './styles/CharacterCreator.css';
+import { css } from '@acab/ecsstatic';
+
+interface SelectionOption {
+	value: string;
+	type: 'image' | 'color';
+	color?: string | undefined;
+}
 
 // eslint-disable-next-line
 const FormContext = createContext<Signal<string>>(createSignal(''));
 function CharacterCreator() {
 	const [activeTab, setActiveTab] = createSignal<string>('');
-	const [selections, setSelections] = createStore({} as Record<string, string>);
+	const [selections, setSelections] = createStore(
+		{} as Record<string, SelectionOption>
+	);
 
 	onMount(() => {
 		const firstTab = document.querySelector(`.${styles.tab}`) as HTMLDivElement;
@@ -34,22 +42,32 @@ function CharacterCreator() {
 			<h1 class="visibly-hidden">Character Creator</h1>
 			<section class={[styles.root, themeClass].join(' ')}>
 				<div class={styles.characterPreview}>
-					<img
-						class={styles.characterPreviewImage}
-						width="200"
-						src={LukeSprite}
-					/>
-					{
-						// TODO: update this block to import the proper image
-						//<For each={Object.entries(selections)}>
-						//{([name, value]) => (
-						//<div style="white-space: nowrap">
-						//<p style="color: blue">{name}</p>
-						//<p>{value}</p>
-						//</div>
-						//)}
-						//</For>
-					}
+					<Index each={Object.entries(selections)}>
+						{(value) =>
+							value()[1].type === 'image' ? (
+								<div
+									style={{
+										'--bg':
+											selections[value()[1].color ?? '']?.value ??
+											'transparent',
+										'--img': `url(/character-creator/${value()[0]}/${
+											value()[1].value
+										}.png)`,
+									}}>
+									<img
+										class={styles.characterPreviewImage}
+										width="32"
+										alt=""
+										src={`/character-creator/${value()[0]}/${
+											value()[1].value
+										}.png`}
+									/>
+								</div>
+							) : (
+								''
+							)
+						}
+					</Index>
 				</div>
 				<div class={styles.characterForm}>
 					<menu id="tab-button-list" class={styles.tabButtonList}>
@@ -66,19 +84,18 @@ function CharacterCreator() {
 	);
 }
 
-const SelectionContext = createContext<(name: string, value: string) => void>(
-	() => ''
-);
+type SelectionSetter = (name: string, value: SelectionOption) => void;
+const SelectionContext = createContext<SelectionSetter>(() => '');
 function FormLayout(props: {
-	setSelections: SetStoreFunction<Record<string, string>>;
+	setSelections: SetStoreFunction<Record<string, SelectionOption>>;
 }) {
-	const setTab = (name: string, value: string) =>
+	const setTab: SelectionSetter = (name, value) =>
 		props.setSelections(name, value);
 
 	return (
 		<SelectionContext.Provider value={setTab}>
 			<Tab title="Appearance" id="appearance">
-				<Feature name="Skin Tone" id="skin-tone" type="select">
+				<Feature name="Skin Tone" id="skin-tone" input="select" type="color">
 					<FeatureOption id="skin-tone-1">1</FeatureOption>
 					<FeatureOption id="skin-tone-2">2</FeatureOption>
 					<FeatureOption id="skin-tone-3">3</FeatureOption>
@@ -88,26 +105,34 @@ function FormLayout(props: {
 					<FeatureOption id="skin-tone-7">7</FeatureOption>
 					<FeatureOption id="skin-tone-8">8</FeatureOption>
 				</Feature>
-				<Feature name="Body Type" id="body-type" type="select">
+				<Feature
+					name="Body Type"
+					id="body-type"
+					input="select"
+					color="appearance-skin-tone">
 					<FeatureOption id="chubby">Chubby</FeatureOption>
 					<FeatureOption id="chunky">Chunky</FeatureOption>
 					<FeatureOption id="skinny">Skinny</FeatureOption>
 					<FeatureOption id="buff">Buff</FeatureOption>
 				</Feature>
-				<Feature name="Mobility Aid" id="mobility-aid" type="select">
+				<Feature name="Mobility Aid" id="mobility-aid" input="select">
 					<FeatureOption id="none">None</FeatureOption>
 					<FeatureOption id="cane">Cane</FeatureOption>
 					<FeatureOption id="wheelchair">Wheelchair</FeatureOption>
 				</Feature>
 			</Tab>
 			<Tab title="Head" id="head">
-				<Feature name="Face Shape" id="face-shape" type="select">
+				<Feature
+					name="Face Shape"
+					id="face-shape"
+					input="select"
+					color="appearance-skin-tone">
 					<FeatureOption id="round">Round</FeatureOption>
 					<FeatureOption id="tall">Tall</FeatureOption>
 					<FeatureOption id="oval">Oval</FeatureOption>
 					<FeatureOption id="square">Square</FeatureOption>
 				</Feature>
-				<Feature name="Hair Texture" id="hair-texture" type="select">
+				<Feature name="Hair Texture" id="hair-texture" input="select">
 					<FeatureOption id="straight">Straight</FeatureOption>
 					<FeatureOption id="wavy">Wavy</FeatureOption>
 					<FeatureOption id="curly">Curly</FeatureOption>
@@ -116,12 +141,12 @@ function FormLayout(props: {
 						Protective Styles
 					</FeatureOption>
 				</Feature>
-				<Feature name="Hair Length" id="hair-length" type="select">
+				<Feature name="Hair Length" id="hair-length" input="select">
 					<FeatureOption id="short">Short</FeatureOption>
 					<FeatureOption id="medium">Medium</FeatureOption>
 					<FeatureOption id="long">Long</FeatureOption>
 				</Feature>
-				<Feature name="Hair Color" id="hair-color" type="select">
+				<Feature name="Hair Color" id="hair-color" input="select">
 					<FeatureOption id="black">Black</FeatureOption>
 					<FeatureOption id="dark-brown">Dark Brown</FeatureOption>
 					<FeatureOption id="light-brown">Light Brown</FeatureOption>
@@ -135,7 +160,7 @@ function FormLayout(props: {
 					<FeatureOption id="white">White</FeatureOption>
 					<FeatureOption id="red-dyed">Red (dyed)</FeatureOption>
 				</Feature>
-				<Feature name="Eye Color" id="eye-color" type="select">
+				<Feature name="Eye Color" id="eye-color" input="select">
 					<FeatureOption id="brown">Brown</FeatureOption>
 					<FeatureOption id="amber">Amber</FeatureOption>
 					<FeatureOption id="gray">Gray</FeatureOption>
@@ -143,13 +168,13 @@ function FormLayout(props: {
 					<FeatureOption id="hazel">Hazel</FeatureOption>
 					<FeatureOption id="green">Green</FeatureOption>
 				</Feature>
-				<Feature name="Facial Hair" id="facial-hair" type="select">
+				<Feature name="Facial Hair" id="facial-hair" input="select">
 					<FeatureOption id="none">None</FeatureOption>
 					<FeatureOption id="mustache">Mustache</FeatureOption>
 					<FeatureOption id="short-beard">Short Beard</FeatureOption>
 					<FeatureOption id="long-beard">Long Beard</FeatureOption>
 				</Feature>
-				<Feature name="Eye Color" id="eye-color" type="select">
+				<Feature name="Eye Color" id="eye-color" input="select">
 					<FeatureOption id="brown">Brown</FeatureOption>
 					<FeatureOption id="amber">Amber</FeatureOption>
 					<FeatureOption id="gray">Gray</FeatureOption>
@@ -159,7 +184,7 @@ function FormLayout(props: {
 				</Feature>
 			</Tab>
 			<Tab title="Details" id="details">
-				<Feature name="Name" id="name" type="input" />
+				<Feature name="Name" id="name" input="text" />
 			</Tab>
 		</SelectionContext.Provider>
 	);
@@ -214,19 +239,10 @@ const FeatureContext = createContext<{
 function Feature(props: {
 	name: string;
 	id: string;
-	type: 'input';
-}): JSX.Element;
-function Feature(props: {
-	name: string;
-	id: string;
-	type: 'select';
-	children: JSX.Element;
-}): JSX.Element;
-function Feature(props: {
-	name: string;
-	id: string;
-	type: 'input' | 'select';
+	input: 'text' | 'select';
+	type?: 'image' | 'color';
 	children?: JSX.Element;
+	color?: string;
 }): JSX.Element {
 	let featureEl: HTMLFieldSetElement;
 	const setSelection = useContext(SelectionContext);
@@ -258,11 +274,15 @@ function Feature(props: {
 	};
 
 	createEffect(() => {
-		setSelection(featureName(), currentValue());
+		setSelection(featureName(), {
+			value: currentValue(),
+			type: props.type ?? 'image',
+			color: props.color,
+		});
 	});
 
 	onMount(() => {
-		if (props.type === 'select') {
+		if (props.input === 'select') {
 			const currentSelectedEl = (featureEl?.querySelector(
 				`${styles.featureOption}:checked`
 			) ?? featureEl.querySelector('input[type="radio"]')) as HTMLInputElement;
@@ -272,7 +292,7 @@ function Feature(props: {
 
 	return (
 		<Switch>
-			<Match when={props.type === 'select'}>
+			<Match when={props.input === 'select'}>
 				<fieldset class={styles.feature} name={featureName()} ref={featureEl!}>
 					<legend>{props.name}</legend>
 					<FeatureContext.Provider
@@ -293,7 +313,7 @@ function Feature(props: {
 					</FeatureContext.Provider>
 				</fieldset>
 			</Match>
-			<Match when={props.type === 'input'}>
+			<Match when={props.input === 'text'}>
 				<fieldset class={styles.feature} name={featureName()}>
 					<legend>{props.name}</legend>
 					<label class="visibly-hidden" for={id}>
@@ -341,27 +361,5 @@ function FeatureOption(props: { id: string; children: string }): JSX.Element {
 		</>
 	);
 }
-
-//function TextInput(props: { name: string }): JSX.Element {
-//const { tabName } = useContext(TabContext);
-//const featureName = () =>
-//`${tabName()}-${props.name.toLowerCase().replace(' ', '-')}`;
-//const id = createUniqueId();
-
-//return (
-//<fieldset class={styles.feature} name={featureName()}>
-//<legend>{props.name}</legend>
-//<label class="visibly-hidden" for={id}>
-//{props.name}
-//</label>
-//<input
-//id={id}
-//class={styles.textInput}
-//name={featureName()}
-//type="text"
-///>
-//</fieldset>
-//);
-//}
 
 export default CharacterCreator;

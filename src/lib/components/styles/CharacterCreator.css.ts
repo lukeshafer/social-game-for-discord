@@ -32,14 +32,38 @@ export default {
 		backgroundColor: vars.colors.teal[1],
 		border: vars.border.shorthand,
 		fontSize: '1.5rem',
-		padding: '1rem',
-		height: 'max-content',
+		padding: 'var(--padding)',
+		width: 'var(--width)',
+		height: 'auto',
+		//maxWidth: '15vw',
+		aspectRatio: '0.5',
+		position: 'relative',
+		vars: {
+			'--width': '10rem',
+			'--padding': '0.5rem',
+			'--img-width': 'calc(var(--width) - (var(--padding) * 2))',
+		},
+	}),
+
+	characterPreviewImageBackground: style({
+		position: 'absolute',
+		top: '0',
+		left: 0,
+		width: '100%',
+		height: '100%',
+		background: 'var(--bg)',
+		imageRendering: 'crisp-edges',
+		mask: 'var(--img) top / 100% no-repeat',
 	}),
 
 	characterPreviewImage: style({
-		width: '10rem',
+		width: '100%',
+		top: '0',
+		left: 0,
 		height: 'auto',
-		maxWidth: '15vw',
+		imageRendering: 'crisp-edges',
+		position: 'absolute',
+		mixBlendMode: 'multiply',
 	}),
 
 	characterForm: style({
@@ -50,6 +74,7 @@ export default {
 		height: '100%',
 		display: 'flex',
 		flexDirection: 'column',
+		justifyContent: 'center',
 	}),
 
 	tabButtonList: style({
@@ -83,10 +108,11 @@ export default {
 	tabWrapper: style({
 		position: 'relative',
 		height: '100%',
+		maxHeight: '30rem',
 	}),
 
 	tab: style({
-		height: '100%',
+		//height: '100%',
 		display: 'none',
 		position: 'absolute',
 		inset: 0,
@@ -104,8 +130,6 @@ export default {
 		borderRadius: 0,
 		color: 'black',
 		height: '100%',
-		maxHeight: '30rem',
-		maxWidth: '20rem',
 		overflowY: 'scroll',
 
 		selectors: {

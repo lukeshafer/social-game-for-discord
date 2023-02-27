@@ -140,46 +140,7 @@ export const [player, updatePlayer] = createStore({
 			}
 
 			if (controls.confirm.includes(e.key)) {
-				if (dialog.isOpen) {
-					dialog.close();
-					return;
-				}
-				let directionData: InteractionHitBox;
-				switch (player.direction) {
-					case 1:
-						directionData = {
-							x: player.x - TILE_SIZE,
-							y: player.y,
-							width: TILE_SIZE,
-							height: PLAYER_HEIGHT,
-						};
-						break;
-					case 2:
-						directionData = {
-							x: player.x,
-							y: player.y - TILE_SIZE,
-							width: PLAYER_WIDTH,
-							height: TILE_SIZE,
-						};
-						break;
-					case 3:
-						directionData = {
-							x: player.x + PLAYER_WIDTH,
-							y: player.y,
-							width: TILE_SIZE,
-							height: PLAYER_HEIGHT,
-						};
-						break;
-					case 4:
-						directionData = {
-							x: player.x,
-							y: player.y + PLAYER_HEIGHT,
-							width: PLAYER_WIDTH,
-							height: TILE_SIZE,
-						};
-				}
-
-				interactionHandler.checkForInteraction(directionData);
+				player.checkForInteraction();
 			}
 
 			if (controls.cancel.includes(e.key)) {
@@ -209,8 +170,51 @@ export const [player, updatePlayer] = createStore({
 		updatePlayer('movementLocked', locked);
 	},
 	setTarget: (x: number, y: number) => {
+		if (player.movementLocked) return;
 		updatePlayer('targetX', x);
 		updatePlayer('targetY', y);
+	},
+	checkForInteraction: () => {
+		if (dialog.isOpen) {
+			dialog.close();
+			return;
+		}
+		let directionData: InteractionHitBox;
+		switch (player.direction) {
+			case 1:
+				directionData = {
+					x: player.x - TILE_SIZE,
+					y: player.y,
+					width: TILE_SIZE,
+					height: PLAYER_HEIGHT,
+				};
+				break;
+			case 2:
+				directionData = {
+					x: player.x,
+					y: player.y - TILE_SIZE,
+					width: PLAYER_WIDTH,
+					height: TILE_SIZE,
+				};
+				break;
+			case 3:
+				directionData = {
+					x: player.x + PLAYER_WIDTH,
+					y: player.y,
+					width: TILE_SIZE,
+					height: PLAYER_HEIGHT,
+				};
+				break;
+			case 4:
+				directionData = {
+					x: player.x,
+					y: player.y + PLAYER_HEIGHT,
+					width: PLAYER_WIDTH,
+					height: TILE_SIZE,
+				};
+		}
+
+		return interactionHandler.checkForInteraction(directionData);
 	},
 });
 

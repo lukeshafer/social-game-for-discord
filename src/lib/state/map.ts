@@ -20,6 +20,29 @@ const [mapStore, updateMap] = createStore({
 			};
 		return maps[this.name];
 	},
+	get rawPosition(): { x: number; y: number } {
+		if (!this.info) return { x: 0, y: 0 };
+		const { width, height } = this.info,
+			[mapWidth, mapHeight] = [width * TILE_SIZE, height * TILE_SIZE],
+			{ height: viewHeight, width: viewWidth } = gameView,
+			[minX, minY] = [viewWidth / 2, viewHeight / 2],
+			[maxX, maxY] = [mapWidth - minX, mapHeight - minY];
+		const position = {
+			x:
+				mapWidth > viewWidth
+					? Math.floor(
+							clamp(player.x + PLAYER_WIDTH / 2, minX, maxX) - viewWidth / 2
+					  )
+					: 0,
+			y:
+				mapHeight > viewHeight
+					? Math.floor(
+							clamp(player.y + PLAYER_HEIGHT / 2, minY, maxY) - viewHeight / 2
+					  )
+					: 0,
+		};
+		return position;
+	},
 	get position(): { x: number; y: number } {
 		if (!this.info) return { x: 0, y: 0 };
 		const { width, height } = this.info,
@@ -27,7 +50,7 @@ const [mapStore, updateMap] = createStore({
 			{ height: viewHeight, width: viewWidth } = gameView,
 			[minX, minY] = [viewWidth / 2, viewHeight / 2],
 			[maxX, maxY] = [mapWidth - minX, mapHeight - minY];
-		return {
+		const position = {
 			x:
 				mapWidth > viewWidth
 					? -clamp(player.x + PLAYER_WIDTH / 2, minX, maxX)
@@ -37,6 +60,7 @@ const [mapStore, updateMap] = createStore({
 					? -clamp(player.y + PLAYER_HEIGHT / 2, minY, maxY)
 					: -mapHeight / 2,
 		};
+		return position;
 	},
 	setTo: (name: MapName) => {
 		updateMap('name', name);

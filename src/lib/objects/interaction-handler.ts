@@ -11,9 +11,10 @@ export class InteractionHandler {
 
 	checkForInteraction(target: InteractionHitBox) {
 		const interaction = this.#check(target);
-		if (!interaction) return;
+		if (!interaction) return false;
 
 		interaction.callback();
+		return true;
 	}
 
 	#check(target: InteractionHitBox) {

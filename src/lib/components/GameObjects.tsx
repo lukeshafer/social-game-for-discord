@@ -50,7 +50,8 @@ export function GameWindow(
 		);
 	};
 
-	npcs.resetTo([{ key: 'TonyOnion', x: 300, y: 300 }]);
+	//npcs.resetTo([{ key: 'TonyOnion', x: 300, y: 300 }]);
+	npcs.resetTo([]);
 
 	onMount(() => {
 		player.initControls(props.controls);
@@ -71,11 +72,18 @@ export function GameWindow(
 		});
 	});
 
+	const handleClick = (e: MouseEvent) => {
+		const x = Math.max(0, e.offsetX - PLAYER_WIDTH / 2);
+		const y = Math.max(0, e.offsetY - PLAYER_HEIGHT / 2);
+		player.setTarget(x, y);
+	};
+
 	return (
 		<div ref={gameWindowElement!} id="game-window" class={style.gameWindow}>
 			<div
 				class={style.mapWrapper}
 				id={map.info.id}
+				onClick={handleClick}
 				style={{
 					transform: `translate(${map.position.x}px, ${map.position.y}px)`,
 					width: `${map.info.width * TILE_SIZE}px`,

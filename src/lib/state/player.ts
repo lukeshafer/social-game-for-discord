@@ -42,6 +42,8 @@ export const [player, updatePlayer] = createStore({
 	dy: 0 as Delta,
 	xMax: 0,
 	yMax: 0,
+	targetX: null as number | null,
+	targetY: null as number | null,
 	movementLocked: false,
 	get direction() {
 		return playerDirection();
@@ -67,6 +69,22 @@ export const [player, updatePlayer] = createStore({
 		const distance = SPEED * timeElapsed;
 		const diagonalMod = 0.8; // a little more than sqrt 0.5
 		// 							sqrt 0.5 feels sluggish
+
+		if (player.targetX !== null) {
+			if (Math.abs(player.targetX - player.x) < distance) {
+				updatePlayer('x', player.targetX);
+				updatePlayer('targetX', null);
+				updatePlayer('dx', 0);
+			} else updatePlayer('dx', player.targetX > player.x ? 1 : -1);
+		}
+		if (player.targetY !== null) {
+			if (Math.abs(player.targetY - player.y) < distance) {
+				updatePlayer('y', player.targetY);
+				updatePlayer('targetY', null);
+				updatePlayer('dy', 0);
+			} else updatePlayer('dy', player.targetY > player.y ? 1 : -1);
+		}
+
 		if (player.dx !== 0) {
 			const xDistance = player.dy ? distance * diagonalMod : distance;
 			const newX = collision.handle(
@@ -91,6 +109,22 @@ export const [player, updatePlayer] = createStore({
 			currentKeysPressed.forEach((key) => handleKeyUp({ key }));
 		const handleKeyDown = (e: KeyboardEvent) => {
 			currentKeysPressed.add(e.key);
+
+			if (
+				[
+					...controls.up,
+					...controls.down,
+					...controls.left,
+					...controls.right,
+				].includes(e.key) &&
+				(player.targetX !== null || player.targetY !== null)
+			) {
+				updatePlayer('targetX', null);
+				updatePlayer('targetY', null);
+				updatePlayer('dx', 0);
+				updatePlayer('dy', 0);
+			}
+
 			// Vertical movement
 			if (controls.up.includes(e.key) && player.dy !== 1) {
 				updatePlayer('dy', -1);
@@ -173,6 +207,10 @@ export const [player, updatePlayer] = createStore({
 	},
 	setMovementLocked: (locked: boolean) => {
 		updatePlayer('movementLocked', locked);
+	},
+	setTarget: (x: number, y: number) => {
+		updatePlayer('targetX', x);
+		updatePlayer('targetY', y);
 	},
 });
 

@@ -11,12 +11,11 @@ import {
 	Index,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import type { JSX, Signal } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
 import { themeClass } from '@/styles/theme.css';
 
 import styles from './styles/CharacterCreator.css';
-import { css } from '@acab/ecsstatic';
 
 interface SelectionOption {
 	value: string;
@@ -25,9 +24,9 @@ interface SelectionOption {
 }
 
 // eslint-disable-next-line
-const FormContext = createContext<Signal<string>>(createSignal(''));
+const FormContext = createContext(createSignal(''));
 function CharacterCreator() {
-	const [activeTab, setActiveTab] = createSignal<string>('');
+	const [activeTab, setActiveTab] = createSignal('');
 	const [selections, setSelections] = createStore(
 		{} as Record<string, SelectionOption>
 	);
@@ -43,30 +42,32 @@ function CharacterCreator() {
 			<section class={[styles.root, themeClass].join(' ')}>
 				<div class={styles.characterPreview}>
 					<Index each={Object.entries(selections)}>
-						{(value) =>
-							value()[1].type === 'image' ? (
-								<div
-									style={{
-										'--bg':
-											selections[value()[1].color ?? '']?.value ??
-											'transparent',
-										'--img': `url(/character-creator/${value()[0]}/${
-											value()[1].value
-										}.png)`,
-									}}>
-									<img
-										class={styles.characterPreviewImage}
-										width="32"
-										alt=""
-										src={`/character-creator/${value()[0]}/${
-											value()[1].value
-										}.png`}
-									/>
-								</div>
-							) : (
-								''
-							)
-						}
+						{(value) => (
+							<>
+								{value()[1].type === 'image' ? (
+									<div
+										style={{
+											'--bg':
+												selections[value()[1].color ?? '']?.value ??
+												'transparent',
+											'--img': `url(/character-creator/${value()[0]}/${
+												value()[1].value
+											}.png)`,
+										}}>
+										<img
+											class={styles.characterPreviewImage}
+											width="32"
+											alt=""
+											src={`/character-creator/${value()[0]}/${
+												value()[1].value
+											}.png`}
+										/>
+									</div>
+								) : (
+									''
+								)}
+							</>
+						)}
 					</Index>
 				</div>
 				<div class={styles.characterForm}>

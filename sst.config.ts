@@ -1,19 +1,14 @@
-import type { SSTConfig } from 'sst';
-import { AstroSite } from 'sst/constructs';
+import { SSTConfig } from "sst";
+import { GameStack } from "./stacks/GameStack";
 
 export default {
 	config(_input) {
 		return {
-			name: 'social-game',
-			region: 'us-east-2',
+			name: "discord-game",
+			region: "us-east-2",
 		};
 	},
 	stacks(app) {
-		app.stack(function Site(ctx) {
-			const site = new AstroSite(ctx.stack, 'site');
-			ctx.stack.addOutputs({
-				url: site.url || 'http://localhost:3000',
-			});
-		});
+		app.stack(GameStack);
 	},
 } satisfies SSTConfig;
